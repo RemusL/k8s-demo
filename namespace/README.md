@@ -1,4 +1,4 @@
-# Kubernetes Demo
+# Namespace
 
 Stack          | Docker Hub URL
 ---------------|-----------------------------------------
@@ -7,18 +7,20 @@ Stack          | Docker Hub URL
 
 ## Deploy
 
+`kubectl apply -f mongo-ns.yaml` or `kubectl create namespace mongo`
+
 `kubectl apply -f mongo-db.yaml`
 
 `kubectl apply -f mongo-express.yaml`
 
 ## Debugging
 
-`kubectl describe pod mongodb-deployment-xxxxxxxxxx-xxxxx`
+`kubectl describe pod mongodb-deployment-xxxxxxxxxx-xxxxx -n mongo`
 
-`kubectl describe service mongodb-service`
+`kubectl describe service mongodb-service -n mongo`
 
-`kubectl logs mongo-express-xxxxxxxxxx-xxxxx`
+`kubectl logs mongo-express-xxxxxxxxxx-xxxxx -n mongo`
 
 ## Expose
 
-`minikube service mongo-express-service`
+`minikube service mongo-express-service -n mongo`
