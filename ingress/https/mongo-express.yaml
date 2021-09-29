@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-express
+  namespace: mongo
+  labels:
+    app: mongo-express
+spec:
+  replicas: 1 
+  selector:
+    matchLabels:
+      app: mongo-express
+  template:
+    metadata:
+      labels:
+        app: mongo-express
+    spec:
+      containers:
+      - name: mongo-express
+        image: mongo-express
+        resources:
+          limits:
+            cpu: '0.5'
+            memory: 0.5G
+        ports:
+        - containerPort: 8081
+        env:
+        - name: ME_CONFIG_MONGODB_ADMINUSERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongodb-user
+        - name: ME_CONFIG_MONGODB_ADMINPASSWORD
+          valueFrom: 
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongodb-password
+        - name: ME_CONFIG_MONGODB_SERVER
+          valueFrom: 
+            configMapKeyRef:
+              name: mongodb-configmap
+              key: mongodb-url
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-express-service
+  namespace: mongo
+spec:
+  selector:
+    app: mongo-express
+  ports:
+  - protocol: TCP
+    port: 8081
+    targetPort: 8081
+---
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/tls
+metadata:
+  name: mongo-express-tls
+  namespace: mongo
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUMyRENDQWNDZ0F3SUJBZ0lKQU9jZWQ4WVBibGxmTUEwR0NTcUdTSWIzRFFFQkJRVUFNQnN4R1RBWEJnTlYKQkFNVEVHMXZibWR2TFdWNGNISmxjM011Y204d0hoY05NakV3T1RJek1Ua3dOVEF5V2hjTk16RXdPVEl4TVRrdwpOVEF5V2pBYk1Sa3dGd1lEVlFRREV4QnRiMjVuYnkxbGVIQnlaWE56TG5Kdk1JSUJJakFOQmdrcWhraUc5dzBCCkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQXdwR21tREh2ZThkZmN5dHFoUnRSc1BIMmdBVU0zSmlVSmtna09xWWUKME12WU4zcjJhUlZZVHNPekdZcUg3aWwvZEZRQmhmcllMaWFIRmRWTFo5SnQ4bWpmMHhaKzZOTUgvWHlzZnlCZgowS0I2ZUFWcDNBekpLVVRad2thVEtRclpzS1F6WFR6NDZaUXlvY09ZQytSMzA5WlpQMkxYSmtaTlo1NDFwWFR3Ck9MZ1dZamxKYzVaUmhiL1MxS2h3bzVQazBQU2FUZlc5bW5mZE96STFEM0VZNHRjMTh2NDBpRTBpZXExVXMxd24KYU1jampyWkg1bG5la1FsTEluY2NweWh6SlNQbW5WaXhzNlVHazlwYlFqdnVyb09yb2JyNkVSQjJGT3FpQUdvOQo4YUVJRm5qbUoyMHFUMW5vbmpnTkVKUzkzckRId2pLQVMzU0NRc3dNTVc4SXd3SURBUUFCb3g4d0hUQWJCZ05WCkhSRUVGREFTZ2hCdGIyNW5ieTFsZUhCeVpYTnpMbkp2TUEwR0NTcUdTSWIzRFFFQkJRVUFBNElCQVFBZS9rM0gKYWtsSUlSSTNQQUZPU0lCc3dnRk8ycTRLa1RVQWRKbkFzZFJISXZ6ZjRRMExueHZueFIwY2ZFV3dYZzIzWUNxVApmV2FINlRHNU5HdG9BUUgyU2NDSGVJeFVRSkFVbzg1Q3U2OTMzSE8zTVpROGpLNWsvWUJBTU0vSmxudDUwb1RjCjlyVGdMYlJjeVo5aE94RFpjdHZ1ZGIyTjNZWnpZR2trbEIvdDg1VWRtQnlNVkZ6TkpTalNjcFZWdkZXNWVyQ00KQXJVSFgvM29PQkd2SDFiK2d6WkZqT200Qmx0cmxpQmNab3ZIR1ZQQ1czTUU0K2tBR0x3ZkV4QXBiejA0MVdaTAp3RzZYVGM5Zm5FYm1vZkpha3hzY0JFMVh1bk5HUVZuVVhUNDhmUVUyMEVMbE1yckhUY01pOEZOdDlmbmp0RmJnCmw2QmRzRVBOeS8rNUduRnkKLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQ==
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBd3BHbW1ESHZlOGRmY3l0cWhSdFJzUEgyZ0FVTTNKaVVKa2drT3FZZTBNdllOM3IyCmFSVllUc096R1lxSDdpbC9kRlFCaGZyWUxpYUhGZFZMWjlKdDhtamYweForNk5NSC9YeXNmeUJmMEtCNmVBVnAKM0F6SktVVFp3a2FUS1FyWnNLUXpYVHo0NlpReW9jT1lDK1IzMDlaWlAyTFhKa1pOWjU0MXBYVHdPTGdXWWpsSgpjNVpSaGIvUzFLaHdvNVBrMFBTYVRmVzltbmZkT3pJMUQzRVk0dGMxOHY0MGlFMGllcTFVczF3bmFNY2pqclpICjVsbmVrUWxMSW5jY3B5aHpKU1BtblZpeHM2VUdrOXBiUWp2dXJvT3JvYnI2RVJCMkZPcWlBR285OGFFSUZuam0KSjIwcVQxbm9uamdORUpTOTNyREh3aktBUzNTQ1Fzd01NVzhJd3dJREFRQUJBb0lCQVFDREJKYzlGeXNmbTdLZgptQlhEaWhEcGFSWEhRUjlYRUh0Nmg4dTFucFZUbm1CN2c1YVlUbUpIcjZwVHdhQWs5TmE1bTdQbTUzSlpLV0ovCmhrQ2ZxZWlWZXA5MXdrazFPSjNCeVFsVEZaYlBvckMxVDFmb2NNZW92WTh4TGxyOElTMVRzRTVTTTdPZGZralYKK3lMUXAwazFZYnA1WDNKbmVLRzQ2NlZPUkQ5YXdSV3l5NDdNR3pwVnNwRkFyK1AyNThkQnUrYU04TVZERGJRYwpna05aanFJZHVzamhDTEk5dFlRbldTNDl3OTY0WmRraWhTV2J4OHMxVW0xL0d4cUJWK29jQXVJSlBjamRLbkdSCk80YnhUZ21PMHF5ZE5RMDBQd2d3ZjNwOUJJU3ZmY1FYR0phTE1uQ081M1RkdzlQNmtya1V6dzJWUUV4VkN0RWcKSnlrUnRMK1JBb0dCQVBRUDJkQmNwakVFa2pJS3BWNXU2dW54Snc0UkZvNEpsMWxuQzVxenBPWTBTbG96U2EzMgpLZHgrekM0Wjgyc0xWMGgyekllUTltQ1B4bS9LZ1VKbkhON0JFSk45NjVMRHM0UE5pVHM3VThVdzVCdFdyYmlaClRONUQ5MzZNZjJhS3BSMWQ2L21pV2xncVRVdGtmcHl2K3d1VHJ4aTU4ZnlWdi9FZnFlYitPLzM1QW9HQkFNd1cKRER0MzdkZzdRcXNVRlQ5VkNWVUk2YjZQeFZHQWxSdWpKM1RlUzRlbFN1U0lVSk1LVzNZNEliR3dJWElTT0JJNQpIeVhmaElGWWQrYkJ0cG9HbERlczVuRlp2K2tzdXJlTUpSSnN3T3R4Nm12L1lBSlhNTWZ5OTkzR2NtWVpUU3EzCnBFQmZqQ3B1dm5RNnFuZmpIMkxobVBJdER6b0FYalV5NHhJYXF4dWJBb0dBYXY3RDg1ZWFlQ1RUM3NKU0N4cy8KT3o0d2EvZEwxd3NYWWVkTjdBMVRmbVJ3TUNrSjVRemsvemhMVk82bGkwa1dnN3NwSVVtSTZYNCtkV1htMHZDWApkSVJaT3YvYUZhWmIvYTFPdXp2Z0ZyTy9YTWpjTWZCckJZbndaM2M2cHY2ak1rT3BudS94QVhQU0hQbzZrNENHCjQyVmtQc2ZOOFhqSkEvRm9yODdIQ0NrQ2dZQitZTHpNYXBTZlRQc1l3NFB3eHZEVGRvU0FXN2s5b2hremx4SE0KM2diNWhaTGQ5OGVsZGtseTZJbDg1ZXVnSHNZWUNzVk9CNTZmRmpDUmRhMWtyZVJFb2MzRnJXVVl1SGtiUmk2Qwp2Vk90dU1vSWZJaHdpcHVMaGRxVnU5aUZmdTk1SDJVWDg5THhSOGlxWXRYRERhTVc4VXByMVJsVHVueWNCdG4wCkVRMmFOd0tCZ0ZDNWVuNnIrSkVqeE5kazBjYkRFWk1hWEo5WGZyNjE0Q3NYWm1DQzB5TFlBejlSanpUZ2VBNmkKOVVudHpSTFJwVHZEZkxDYnBsSC9qZEdWbWp4VHhObzEwSnBjWEVCdG9BZkUvdE9nVVdyRHdYRno0SlFLeThjeQp2anB0dzQxU09VclN0KzlUVjZXQ1YyREJNWmFLVjg1UzZjWE9xbHpHaU1Dam15T3JxcVdBCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0t
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mongo-express
+  namespace: mongo
+spec:
+  tls:
+  - hosts:
+      - mongo-express.ro
+    secretName: mongo-express-tls
+  rules:
+  - host: mongo-express.ro
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: mongo-express-service
+            port:
+              number: 8081
