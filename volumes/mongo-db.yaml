@@ -16,19 +16,6 @@ metadata:
 data:
   mongodb-url: mongodb-service
 ---
- apiVersion: v1
- kind: PersistentVolumeClaim
- metadata:
-  name: mongodb-pvc
-  namespace: mongo
- spec:
-  # storageClassName: standard
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 0.5Gi
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -66,13 +53,6 @@ spec:
             secretKeyRef:
               name: mongodb-secret
               key: mongodb-password
-        volumeMounts:
-        - name: mongodb-data
-          mountPath: /data/db
-      volumes:
-      - name: mongodb-data
-        persistentVolumeClaim:
-          claimName: mongodb-pvc
 ---
 apiVersion: v1
 kind: Service

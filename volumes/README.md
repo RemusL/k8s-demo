@@ -1,4 +1,4 @@
-# Ingress HTTPS
+# Volumes
 
 Stack          | Docker Hub URL
 ---------------|-----------------------------------------
@@ -20,6 +20,12 @@ Stack          | Docker Hub URL
 `kubectl describe service mongodb-service -n mongo`
 
 `kubectl logs mongo-express-xxxxxxxxxx-xxxxx -n mongo`
+
+`kubectl get pvc -n mongo`
+
+`kubectl get pv`
+
+`kubectl get sc`
 
 ## Expose
 

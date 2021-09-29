@@ -1,4 +1,4 @@
-# Namespace
+# Ingress HTTP
 
 Stack          | Docker Hub URL
 ---------------|-----------------------------------------
