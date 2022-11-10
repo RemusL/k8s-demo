@@ -60,6 +60,7 @@ metadata:
   name: mongo-express
   namespace: mongo
 spec:
+  # ingressClassName: nginx
   rules:
   - host: mongo-express.ro
     http:

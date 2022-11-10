@@ -22,7 +22,7 @@ data:
   name: mongodb-pvc
   namespace: mongo
  spec:
-  # storageClassName: standard
+  # storageClassName: hostpath
   accessModes:
     - ReadWriteOnce
   resources:
